@@ -1,30 +1,25 @@
 .ONESHELL:
 pre-build:
-	pip install --upgrade poetry && \
-	poetry install && \
-	yarn
+	uv sync --all-extras
 
 build:
-	yarn generate
+	bun install
+	bun generate
 
 generate:
-	poetry run python gfi/populate.py
-
-tweet:
-	poetry run python gfi/tweet.py
-
-index:
-	poetry run python gfi/index.py
+	uv run python gfi/populate.py
 
 generate-prod:
-	make pre-build
-	make generate
-	@if [ $$PREVIEW == "false" ]; then \
-	  make tweet; \
-	fi; \
-	make build
+	bun install
+	bun sync down
+	bun generate
 
 test:
-	poetry run python gfi/test_data.py
+	uv run python gfi/test_data.py
+	uv run mypy gfi/*.py
+
+format:
+	uv run ruff format .
+	bunx prettier --write .
 
 .DEFAULT_GOAL := build
